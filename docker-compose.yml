@@ -1,0 +1,26 @@
+version: "3.3"
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: "homeassistant/home-assistant:stable"
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - homeassistant_config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    environment:
+      - TZ=${TIME_ZONE}
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.homeassistant.tls=true
+      - traefik.http.routers.homeassistant.service=homeassistant
+      - traefik.http.routers.homeassistant.rule=Host(`ha.${TRAEFIK_DOMAIN}`)
+      - traefik.http.services.homeassistant.loadbalancer.server.port=8123
+
+volumes: 
+  homeassistant_config:
+
